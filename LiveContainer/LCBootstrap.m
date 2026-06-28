@@ -578,7 +578,7 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     }
     
     if(!isSideStore && !isAeroStore && aeroStoreExist && ![guestAppInfo[@"dontInjectTweakLoader"] boolValue]) {
-        dlopen([lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/AeroStoreApp.framework/AeroStore"].UTF8String, RTLD_LAZY);
+        dlopen([lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/AeroStoreApp.framework/AeroStoreApp"].UTF8String, RTLD_LAZY);
     }
     
     // Fix dynamic properties of some apps
@@ -831,7 +831,7 @@ int LiveContainerMain(int argc, char *argv[]) {
         void* sideStoreHandle = dlopen("@executable_path/Frameworks/SideStore.framework/SideStore", RTLD_LAZY);
     }
     if(aeroStoreExist) {
-        void* aeroStoreHandle = dlopen("@executable_path/Frameworks/SideStore.framework/SideStore", RTLD_LAZY);
+        void* aeroStoreHandle = dlopen("@executable_path/Frameworks/AeroStoreApp.framework/AeroStoreApp", RTLD_LAZY);
     }
 
     if ([lcUserDefaults boolForKey:@"LCLoadTweaksToSelf"]) {
