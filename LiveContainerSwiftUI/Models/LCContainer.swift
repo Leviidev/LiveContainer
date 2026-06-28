@@ -188,6 +188,11 @@ extension LCAppInfo {
                 container.resolvedContainerURL = LCPath.docPath.appendingPathComponent("SideStore")
                 return [container]
             }
+            if self is BuiltInAeroStoreAppInfo {
+                let container = LCContainer(folderName: "", name: "AeroStore", isShared: false)
+                container.resolvedContainerURL = LCPath.docPath.appendingPathComponent("AeroStore")
+                return [container]
+            }
             
             var upgrade = false
             // upgrade

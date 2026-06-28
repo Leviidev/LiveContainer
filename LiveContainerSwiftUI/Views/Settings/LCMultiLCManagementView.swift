@@ -84,6 +84,13 @@ struct LCMultiLCManagementView : View, InstallAnotherLCButtonDelegate {
                     Text("lc.settings.multiLCInstall.installWithBuiltInSideStore".loc)
                 }
             }
+            if(UserDefaults.aeroStoreExist()) {
+                Button {
+                    installLC2Alert.close(result: 3)
+                } label: {
+                    Text("Install with built-in AeroStore")
+                }
+            }
             
             Button {
                 installLC2Alert.close(result: 1)
@@ -134,6 +141,12 @@ struct LCMultiLCManagementView : View, InstallAnotherLCButtonDelegate {
                 let launchURLStr = packedIpaUrl.absoluteString
                 UserDefaults.standard.setValue(launchURLStr, forKey: "launchAppUrlScheme")
                 LCUtils.openSideStore()
+                return
+            }
+            if(result == 3) {
+                let launchURLStr = packedIpaUrl.absoluteString
+                UserDefaults.standard.setValue(launchURLStr, forKey: "launchAppUrlScheme")
+                LCUtils.openAeroStore()
                 return
             }
             

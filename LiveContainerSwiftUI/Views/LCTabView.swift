@@ -164,7 +164,7 @@ struct LCTabView: View {
                 sharedModel.selectedTab = .apps
                 break
             }
-            if url.scheme?.lowercased() == "sidestore" {
+            if url.scheme?.lowercased() == "sidestore" || url.scheme?.lowercased() == "aerostore" {
                 sharedModel.selectedTab = .apps
                 break
             }

@@ -14,6 +14,7 @@
 	<array>
 		<string>$(APP_GROUP_SIDESTORE)</string>
 		<string>$(APP_GROUP_ALTSTORE)</string>
+		<string>$(APP_GROUP_AEROSTORE)</string>
 	</array>
 	<key>get-task-allow</key>
 	<true/>

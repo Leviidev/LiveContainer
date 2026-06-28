@@ -308,6 +308,9 @@ struct LCDataManagementView : View {
         if UserDefaults.sideStoreExist() {
             allApps.append(LCAppModel(appInfo: BuiltInSideStoreAppInfo()))
         }
+        if UserDefaults.aeroStoreExist() {
+            allApps.append(LCAppModel(appInfo: BuiltInAeroStoreAppInfo()))
+        }
         
         var cleanedCount = 0
 

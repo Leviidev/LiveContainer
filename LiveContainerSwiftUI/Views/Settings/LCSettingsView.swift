@@ -17,6 +17,7 @@ enum JITEnablerType : Int, CaseIterable, Identifiable {
     case SideStore = 4
     case StosDebug = 5
     case StosDebugLC = 6
+    case AeroStore = 7
     
     var displayName: String {
         switch self {
@@ -25,6 +26,7 @@ enum JITEnablerType : Int, CaseIterable, Identifiable {
         case .StosDebug: "StosDebug"
         case .StosDebugLC: "StosDebug (Another LiveContainer)"
         case .SideStore: "SideStore"
+        case .AeroStore: "AeroStore"
         case .JITStreamerEBLegacy: "JitStreamer-EB (Relaunch)"
         case .SideJITServer: "SideJITServer/JITStreamer 2.0"
         }
@@ -43,6 +45,7 @@ struct LCSettingsView: View {
     
     @StateObject private var certificateImportAlert = YesNoHelper()
     @StateObject private var certificateImportFromBuiltInSideStoreAlert = YesNoHelper()
+    @StateObject private var certificateImportFromBuiltInAeroStoreAlert = YesNoHelper()
     @StateObject private var certificateRemoveAlert = YesNoHelper()
     @StateObject private var certificateImportFileAlert = AlertHelper<URL>()
     @StateObject private var certificateImportPasswordAlert = InputHelper()

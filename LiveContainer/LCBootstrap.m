@@ -32,6 +32,8 @@ bool isLiveProcess = false;
 bool isSharedBundle = false;
 bool isSideStore = false;
 bool sideStoreExist = false;
+bool isAeroStore = false;
+bool aeroStoreExist = false;
 
 @implementation NSUserDefaults(LiveContainer)
 + (instancetype)lcUserDefaults {
@@ -68,6 +70,12 @@ bool sideStoreExist = false;
 }
 + (bool)sideStoreExist {
     return sideStoreExist;
+}
++ (bool)isAeroStore {
+    return isAeroStore;
+}
++ (bool)aeroStoreExist {
+    return aeroStoreExist;
 }
 
 + (NSString*)lcGuestAppId {
@@ -215,7 +223,7 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     if([[lcUserDefaults objectForKey:@"LCWaitForDebugger"] boolValue]) {
         sleep(100);
     }
-    if (!LCSharedUtils.certificatePassword && !isSideStore) {
+    if (!LCSharedUtils.certificatePassword && !isSideStore && !isAeroStore) {
 #if !TARGET_OS_SIMULATOR
         if(@available(iOS 26.0 ,*))  {
             return @"JITLess mode is required since iOS 26. Please set it up in settings.";
@@ -237,12 +245,20 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     NSURL *appGroupFolder = nil;
     
     NSString *bundlePath = 0;
-    if(!isSideStore) {
-        bundlePath = [NSString stringWithFormat:@"%@/Applications/%@", docPath, selectedApp];
-    } else if (isLiveProcess) {
-        bundlePath = [[NSBundle.mainBundle.bundleURL.URLByDeletingLastPathComponent.URLByDeletingLastPathComponent URLByAppendingPathComponent:@"Frameworks/SideStoreApp.framework"] path];
+    if(isSideStore) {
+        if (isLiveProcess) {
+            bundlePath = [[NSBundle.mainBundle.bundleURL.URLByDeletingLastPathComponent.URLByDeletingLastPathComponent URLByAppendingPathComponent:@"Frameworks/SideStoreApp.framework"] path];
+        } else {
+            bundlePath = [[NSBundle.mainBundle.bundleURL URLByAppendingPathComponent:@"Frameworks/SideStoreApp.framework"] path];
+        }
+    } else if(isAeroStore) {
+        if (isLiveProcess) {
+            bundlePath = [[NSBundle.mainBundle.bundleURL.URLByDeletingLastPathComponent.URLByDeletingLastPathComponent URLByAppendingPathComponent:@"Frameworks/AeroStoreApp.framework"] path];
+        } else {
+            bundlePath = [[NSBundle.mainBundle.bundleURL URLByAppendingPathComponent:@"Frameworks/AeroStoreApp.framework"] path];
+        }
     } else {
-        bundlePath = [[NSBundle.mainBundle.bundleURL URLByAppendingPathComponent:@"Frameworks/SideStoreApp.framework"] path];
+        bundlePath = [NSString stringWithFormat:@"%@/Applications/%@", docPath, selectedApp];
     }
     
 
@@ -297,7 +313,7 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
         return @"Container not found!";
     }
     
-    if(isLiveProcess && !isSideStore) {
+    if(isLiveProcess && !isSideStore && !isAeroStore) {
         lcAppUrlScheme = [lcUserDefaults stringForKey:@"hostUrlScheme"];
         [lcUserDefaults removeObjectForKey:@"hostUrlScheme"];
     }
@@ -386,6 +402,13 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
         } else {
             newHomePath = [docPath stringByAppendingPathComponent:@"SideStore"];
         }
+    } else if(isAeroStore) {
+        if(isLiveProcess) {
+            newHomePath = [lcUserDefaults stringForKey:@"specifiedAeroStoreContainerPath"];;
+            [lcUserDefaults removeObjectForKey:@"specifiedAeroStoreContainerPath"];
+        } else {
+            newHomePath = [docPath stringByAppendingPathComponent:@"AeroStore"];
+        }
     } else if (bookmarkURL) {
         newHomePath = bookmarkURL.path;
     } else if(isSharedBundle) {
@@ -473,7 +496,7 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     
     // hook NSUserDefault before running libraries' initializers
     NUDGuestHooksInit();
-    if(!isSideStore) {
+    if(!isSideStore && !isAeroStore) {
         SecItemGuestHooksInit();
         NSFMGuestHooksInit();
         initDead10ccFix();
@@ -481,7 +504,7 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     // ignore setting handler from guest app
     litehook_rebind_symbol(LITEHOOK_REBIND_GLOBAL, NSSetUncaughtExceptionHandler, hook_do_nothing, nil);
     
-    BOOL hookDlopen = !isSideStore && !isSharedBundle && LCSharedUtils.certificatePassword && isLiveProcess;
+    BOOL hookDlopen = !isSideStore && !isAeroStore && !isSharedBundle && LCSharedUtils.certificatePassword && isLiveProcess;
     DyldHooksInit([guestAppInfo[@"hideLiveContainer"] boolValue], hookDlopen, [guestAppInfo[@"spoofSDKVersion"] unsignedIntValue]);
     
     if([guestContainerInfo[@"spoofIdentifierForVendor"] boolValue]) {
@@ -545,13 +568,17 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
         dlopen("@loader_path/../TweakLoader.dylib", RTLD_LAZY|RTLD_GLOBAL);
     }
     
-    if(isSideStore) {
+    if(isSideStore || isAeroStore) {
         tweakLoaderLoaded = true;
         dlopen([lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/TweakLoader.dylib"].UTF8String, RTLD_LAZY|RTLD_GLOBAL);
     }
     
-    if(!isSideStore && sideStoreExist && ![guestAppInfo[@"dontInjectTweakLoader"] boolValue]) {
+    if(!isSideStore && !isAeroStore && sideStoreExist && ![guestAppInfo[@"dontInjectTweakLoader"] boolValue]) {
         dlopen([lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/SideStore.framework/SideStore"].UTF8String, RTLD_LAZY);
+    }
+    
+    if(!isSideStore && !isAeroStore && aeroStoreExist && ![guestAppInfo[@"dontInjectTweakLoader"] boolValue]) {
+        dlopen([lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/AeroStoreApp.framework/AeroStore"].UTF8String, RTLD_LAZY);
     }
     
     // Fix dynamic properties of some apps
@@ -673,8 +700,10 @@ int LiveContainerMain(int argc, char *argv[]) {
     
     if(isLiveProcess) {
         sideStoreExist = [NSFileManager.defaultManager fileExistsAtPath:[lcMainBundle.bundlePath stringByAppendingPathComponent:@"../../Frameworks/SideStoreApp.framework"]];
+        aeroStoreExist = [NSFileManager.defaultManager fileExistsAtPath:[lcMainBundle.bundlePath stringByAppendingPathComponent:@"../../Frameworks/AeroStoreApp.framework"]];
     } else {
         sideStoreExist = [NSFileManager.defaultManager fileExistsAtPath:[lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/SideStoreApp.framework"]];
+        aeroStoreExist = [NSFileManager.defaultManager fileExistsAtPath:[lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/AeroStoreApp.framework"]];
     }
 
     if([lcUserDefaults boolForKey:@"LCOpenSideStore"] || [selectedApp isEqualToString:@"builtinSideStore"]) {
@@ -682,6 +711,14 @@ int LiveContainerMain(int argc, char *argv[]) {
             isSideStore = true;
         } else {
             [lcUserDefaults setBool:NO forKey:@"LCOpenSideStore"];
+        }
+    }
+
+    if(!isSideStore && ([lcUserDefaults boolForKey:@"LCOpenAeroStore"] || [selectedApp isEqualToString:@"builtinAeroStore"])) {
+        if(aeroStoreExist) {
+            isAeroStore = true;
+        } else {
+            [lcUserDefaults setBool:NO forKey:@"LCOpenAeroStore"];
         }
     }
     
@@ -792,6 +829,9 @@ int LiveContainerMain(int argc, char *argv[]) {
     
     if(sideStoreExist) {
         void* sideStoreHandle = dlopen("@executable_path/Frameworks/SideStore.framework/SideStore", RTLD_LAZY);
+    }
+    if(aeroStoreExist) {
+        void* aeroStoreHandle = dlopen("@executable_path/Frameworks/SideStore.framework/SideStore", RTLD_LAZY);
     }
 
     if ([lcUserDefaults boolForKey:@"LCLoadTweaksToSelf"]) {

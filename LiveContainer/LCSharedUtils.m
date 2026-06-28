@@ -56,7 +56,8 @@ extern NSBundle *lcMainBundle;
     dispatch_once(&once, ^{
         NSArray* possibleAppGroups = @[
             [@"group.com.SideStore.SideStore." stringByAppendingString:[self teamIdentifier]],
-            [@"group.com.rileytestut.AltStore." stringByAppendingString:[self teamIdentifier]]
+            [@"group.com.rileytestut.AltStore." stringByAppendingString:[self teamIdentifier]],
+            [@"group.com.aero.aerostore." stringByAppendingString:[self teamIdentifier]]
         ];
         
         // we prefer app groups with "Apps" in it, which indicate this app group is actually used by the store.
@@ -133,6 +134,8 @@ extern NSBundle *lcMainBundle;
             urlScheme = @"stikjit://enable-jit?bundle-id=%@";
         } else if ([application canOpenURL:[NSURL URLWithString:@"sidestore://"]]) {
             urlScheme = @"sidestore://sidejit-enable?bid=%@";
+        } else if ([application canOpenURL:[NSURL URLWithString:@"aerostore://"]]) {
+            urlScheme = @"aerostore://sidejit-enable?bid=%@";
         }
     }
     if (!urlScheme) {
