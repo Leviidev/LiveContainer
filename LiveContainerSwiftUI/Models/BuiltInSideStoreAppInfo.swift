@@ -8,7 +8,7 @@
 class BuiltInSideStoreAppInfo : LCAppInfo {
 
     override init() {
-        super.init(bundlePath: Bundle.main.bundleURL.appendingPathComponent("Frameworks/SideStoreApp.framework").path)
+        super.init(bundlePath: Bundle.main.bundleURL.appendingPathComponent("Frameworks/SideStoreApp.framework").path, isBuiltIn: true)
     }
     
     override func iconIsDarkIcon(_ isDarkIcon: Bool) -> UIImage! {

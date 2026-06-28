@@ -1,7 +1,7 @@
 class BuiltInAeroStoreAppInfo : LCAppInfo {
 
     override init() {
-        super.init(bundlePath: Bundle.main.bundleURL.appendingPathComponent("Frameworks/AeroStoreApp.framework").path)
+        super.init(bundlePath: Bundle.main.bundleURL.appendingPathComponent("Frameworks/AeroStoreApp.framework").path, isBuiltIn: true)
     }
     
     override func iconIsDarkIcon(_ isDarkIcon: Bool) -> UIImage! {
