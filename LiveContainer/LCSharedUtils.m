@@ -57,7 +57,7 @@ extern NSBundle *lcMainBundle;
         NSArray* possibleAppGroups = @[
             [@"group.com.SideStore.SideStore." stringByAppendingString:[self teamIdentifier]],
             [@"group.com.rileytestut.AltStore." stringByAppendingString:[self teamIdentifier]],
-            [@"group.com.aero.aerostore." stringByAppendingString:[self teamIdentifier]]
+            [@"group.com.SideStore.AeroStore." stringByAppendingString:[self teamIdentifier]]
         ];
         
         // we prefer app groups with "Apps" in it, which indicate this app group is actually used by the store.

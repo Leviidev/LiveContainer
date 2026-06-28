@@ -201,7 +201,7 @@
             ans = AltStore;
         } else if ([[LCSharedUtils appGroupID] containsString:@"SideStore"] && ![[LCSharedUtils appGroupID] isEqualToString:@"group.com.SideStore.SideStore"]) {
             ans = SideStore;
-        } else if ([[LCSharedUtils appGroupID] containsString:@"aero"] && ![[LCSharedUtils appGroupID] isEqualToString:@"group.com.aero.aerostore"]) {
+        } else if ([[LCSharedUtils appGroupID] containsString:@"AeroStore"] && ![[LCSharedUtils appGroupID] isEqualToString:@"group.com.SideStore.AeroStore"]) {
             ans = AeroStore;
         } else if (![[LCSharedUtils appGroupID] containsString:@"Unknown"] ) {
             ans = ADP;
@@ -344,7 +344,7 @@
     NSArray* appGroupsToFind = @[
         @"group.com.SideStore.SideStore",
         @"group.com.rileytestut.AltStore",
-        @"group.com.aero.aerostore",
+        @"group.com.SideStore.AeroStore",
     ];
     
     // remove the team id prefix in app group id added by SideStore/AltStore
