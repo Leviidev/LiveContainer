@@ -292,16 +292,6 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     
 
     guestAppInfo = [NSDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/LCAppInfo.plist", bundlePath]];
-
-    // not found locally, let's look for the app in shared folder
-    if(!guestAppInfo) {
-        NSURL *appGroupPath = [LCSharedUtils appGroupPath];
-        appGroupFolder = [appGroupPath URLByAppendingPathComponent:@"LiveContainer"];
-        bundlePath = [NSString stringWithFormat:@"%@/Applications/%@", appGroupFolder.path, selectedApp];
-        guestAppInfo = [NSDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/LCAppInfo.plist", bundlePath]];
-        isSharedBundle = true;
-    }
-    
     if(!guestAppInfo && (isSideStore || isAeroStore)) {
         guestAppInfo = @{
             @"LCContainers": @[@{
@@ -317,6 +307,15 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
             @"is32bit": @NO,
             @"dontSign": @YES
         };
+    }
+
+    // not found locally, let's look for the app in shared folder
+    if(!guestAppInfo) {
+        NSURL *appGroupPath = [LCSharedUtils appGroupPath];
+        appGroupFolder = [appGroupPath URLByAppendingPathComponent:@"LiveContainer"];
+        bundlePath = [NSString stringWithFormat:@"%@/Applications/%@", appGroupFolder.path, selectedApp];
+        guestAppInfo = [NSDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/LCAppInfo.plist", bundlePath]];
+        isSharedBundle = true;
     }
     
     if(!guestAppInfo) {
@@ -399,7 +398,13 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     const char *oldPath = *path;
     
     // Overwrite @executable_path
-    const char *appExecPath = appBundle.executablePath.fileSystemRepresentation;
+    NSString *resolvedExecPath = appBundle.executablePath;
+    if(isAeroStore) {
+        resolvedExecPath = [bundlePath stringByAppendingPathComponent:@"AeroStoreApp"];
+    } else if(isSideStore) {
+        resolvedExecPath = [bundlePath stringByAppendingPathComponent:@"SideStore"];
+    }
+    const char *appExecPath = resolvedExecPath.fileSystemRepresentation;
     *path = appExecPath;
     overwriteExecPath(appExecPath);
     
@@ -524,14 +529,17 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     overwriteMainCFBundle();
 
     // Overwrite executable info
-    if(!appBundle.executablePath) {
+    if(!resolvedExecPath && !appBundle.executablePath) {
         return @"App's executable path not found. Please try force re-signing or reinstalling this app.";
     }
 
     NSMutableArray<NSString *> *objcArgv = NSProcessInfo.processInfo.arguments.mutableCopy;
-    objcArgv[0] = appBundle.executablePath;
+    objcArgv[0] = resolvedExecPath ?: appBundle.executablePath;
     [NSProcessInfo.processInfo performSelector:@selector(setArguments:) withObject:objcArgv];
-    NSProcessInfo.processInfo.processName = appBundle.infoDictionary[@"CFBundleExecutable"];
+    NSString *procName = appBundle.infoDictionary[@"CFBundleExecutable"];
+    if(isAeroStore) procName = @"AeroStoreApp";
+    else if(isSideStore) procName = @"SideStore";
+    NSProcessInfo.processInfo.processName = procName;
     *_CFGetProgname() = NSProcessInfo.processInfo.processName.UTF8String;
     Class swiftNSProcessInfo = NSClassFromString(@"_NSSwiftProcessInfo");
     if(swiftNSProcessInfo) {
