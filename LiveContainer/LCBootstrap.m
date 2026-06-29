@@ -303,7 +303,20 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
     }
     
     if(!guestAppInfo && (isSideStore || isAeroStore)) {
-        guestAppInfo = @{@"dontInjectTweakLoader": @YES};
+        guestAppInfo = @{
+            @"LCContainers": @[@{
+                @"folderName": @"752B6522-37A4-404B-B0C6-8A37556C9F72",
+                @"isolateAppGroup": @NO,
+                @"name": @"752B6522-37A4-404B-B0C6-8A37556C9F72"
+            }],
+            @"LCDataUUID": @"752B6522-37A4-404B-B0C6-8A37556C9F72",
+            @"LCPatchRevision": @99999,
+            @"MultitaskSpecified": @1,
+            @"dontInjectTweakLoader": @YES,
+            @"dontLoadTweakLoader": @YES,
+            @"is32bit": @NO,
+            @"dontSign": @YES
+        };
     }
     
     if(!guestAppInfo) {
