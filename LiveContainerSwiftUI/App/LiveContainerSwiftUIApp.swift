@@ -30,7 +30,7 @@ struct LiveContainerSwiftUIApp : SwiftUI.App {
                 if !appDir.hasSuffix(".app") {
                     continue
                 }
-                let newApp = LCAppInfo(bundlePath: "\(LCPath.bundlePath.path)/\(appDir)")!
+                let newApp = LCAppInfo(bundlePath: "\(LCPath.bundlePath.path)/\(appDir)", isBuiltIn: false)!
                 newApp.relativeBundlePath = appDir
                 newApp.isShared = false
                 if newApp.isHidden {
@@ -47,7 +47,7 @@ struct LiveContainerSwiftUIApp : SwiftUI.App {
                     if !appDir.hasSuffix(".app") {
                         continue
                     }
-                    let newApp = LCAppInfo(bundlePath: "\(LCPath.lcGroupBundlePath.path)/\(appDir)")!
+                    let newApp = LCAppInfo(bundlePath: "\(LCPath.lcGroupBundlePath.path)/\(appDir)", isBuiltIn: false)!
                     newApp.relativeBundlePath = appDir
                     newApp.isShared = true
                     if newApp.isHidden {

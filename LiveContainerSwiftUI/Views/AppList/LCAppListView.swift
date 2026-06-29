@@ -645,7 +645,7 @@ struct LCAppListView : View, LCAppBannerDelegate, LCAppModelDelegate {
 
         let appFolderPath = payloadPath.appendingPathComponent(appBundleName)
         
-        guard let newAppInfo = LCAppInfo(bundlePath: appFolderPath.path) else {
+        guard let newAppInfo = LCAppInfo(bundlePath: appFolderPath.path, isBuiltIn: false) else {
             throw "lc.appList.infoPlistCannotReadError".loc
         }
 
@@ -707,7 +707,7 @@ struct LCAppListView : View, LCAppBannerDelegate, LCAppModelDelegate {
         }
         // Move it!
         try fm.moveItem(at: appFolderPath, to: outputFolder)
-        let finalNewApp = LCAppInfo(bundlePath: outputFolder.path)
+        let finalNewApp = LCAppInfo(bundlePath: outputFolder.path, isBuiltIn: false)
         finalNewApp?.relativeBundlePath = appRelativePath
         
         guard let finalNewApp else {

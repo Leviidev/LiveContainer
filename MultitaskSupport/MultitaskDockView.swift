@@ -48,7 +48,7 @@ class AppInfoProvider {
             if FileManager.default.fileExists(atPath: path),
                let appInfoDict = NSDictionary(contentsOfFile: path),
                let bundlePath = appInfoDict["bundlePath"] as? String,
-               let appInfo = LCAppInfo(bundlePath: bundlePath) {
+               let appInfo = LCAppInfo(bundlePath: bundlePath, isBuiltIn: false) {
                 
                 cacheQueue.async(flags: .barrier) { self.infoCacheByUUID[dataUUID] = appInfo }
                 return appInfo
@@ -74,7 +74,7 @@ class AppInfoProvider {
             guard let appDirs = try? FileManager.default.contentsOfDirectory(atPath: appsPath) else { continue }
             
             for appDir in appDirs where appDir.hasSuffix(".app") {
-                if let appInfo = LCAppInfo(bundlePath: "\(appsPath)/\(appDir)"), appInfo.displayName() == appName {
+                if let appInfo = LCAppInfo(bundlePath: "\(appsPath)/\(appDir)", isBuiltIn: false), appInfo.displayName() == appName {
                     cacheQueue.async(flags: .barrier) { self.infoCacheByName[appName] = appInfo }
                     return appInfo
                 }
