@@ -295,7 +295,7 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
 
     // not found locally, let's look for the app in shared folder
     if(!guestAppInfo) {
-        NSURL *appGroupPath = [NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:[LCSharedUtils appGroupID]];
+        NSURL *appGroupPath = [LCSharedUtils appGroupPath];
         appGroupFolder = [appGroupPath URLByAppendingPathComponent:@"LiveContainer"];
         bundlePath = [NSString stringWithFormat:@"%@/Applications/%@", appGroupFolder.path, selectedApp];
         guestAppInfo = [NSDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/LCAppInfo.plist", bundlePath]];
@@ -688,7 +688,7 @@ int LiveContainerMain(int argc, char *argv[]) {
     
     lcSharedDefaults = [[NSUserDefaults alloc] initWithSuiteName: [LCSharedUtils appGroupID]];
     lcAppUrlScheme = NSBundle.mainBundle.infoDictionary[@"CFBundleURLTypes"][0][@"CFBundleURLSchemes"][0];
-    lcAppGroupPath = [[NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:[NSClassFromString(@"LCSharedUtils") appGroupID]] path];
+    lcAppGroupPath = [NSClassFromString(@"LCSharedUtils") appGroupPath].path;
     isLiveProcess = [lcAppUrlScheme isEqualToString:@"liveprocess"];
     setenv("LC_HOME_PATH", getenv("HOME"), 0);
 
@@ -891,7 +891,7 @@ int LiveContainerMain(int argc, char *argv[]) {
     if ([lcUserDefaults boolForKey:@"LCLoadTweaksToSelf"]) {
         NSString *tweakFolder = nil;
         if (isSharedBundle) {
-            NSURL *appGroupPath = [NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:[LCSharedUtils appGroupID]];
+            NSURL *appGroupPath = [LCSharedUtils appGroupPath];
             tweakFolder = [appGroupPath.path stringByAppendingPathComponent:@"LiveContainer/Tweaks"];
         } else {
             NSString *docPath = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject.path;

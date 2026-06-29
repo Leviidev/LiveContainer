@@ -317,6 +317,10 @@ uint32_t dyld_get_sdk_version(const struct mach_header* mh);
 }
 
 - (void)patchExecAndSignIfNeedWithCompletionHandler:(void(^)(bool success, NSString* errorInfo))completetionHandler progressHandler:(void(^)(NSProgress* progress))progressHandler forceSign:(BOOL)forceSign {
+    if (_isBuiltIn) {
+        completetionHandler(YES, nil);
+        return;
+    }
     [NSUserDefaults.standardUserDefaults setObject:@(YES) forKey:@"SigningInProgress"];
     NSString *appPath = self.bundlePath;
 

@@ -112,6 +112,9 @@ extern NSBundle *lcMainBundle;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         appGroupPath = [NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:[LCSharedUtils appGroupID]];
+        if (!appGroupPath) {
+            appGroupPath = [[NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+        }
     });
     return appGroupPath;
 }
