@@ -264,8 +264,9 @@ struct LCTabView: View {
         
         let task = SecTaskCreateFromSelf(nil)
         guard let value = SecTaskCopyValueForEntitlement(task, "application-identifier" as CFString, nil), let appIdentifier = value.takeRetainedValue() as? String else {
-            errorInfo = "Unable to determine application-identifier"
-            errorShow = true
+            // App is unsigned — application-identifier entitlement not present.
+            print("application-identifier entitlement not found (unsigned build) — skipping check")
+            UserDefaults.standard.set(true, forKey: "LCBundleIdChecked")
             return
         }
         
@@ -288,7 +289,12 @@ struct LCTabView: View {
     
     func checkGetTaskAllow() {
         let task = SecTaskCreateFromSelf(nil)
-        guard let value = SecTaskCopyValueForEntitlement(task, "get-task-allow" as CFString, nil), (value.takeRetainedValue() as? NSNumber)?.boolValue ?? false else {
+        guard let value = SecTaskCopyValueForEntitlement(task, "get-task-allow" as CFString, nil) else {
+            // App is unsigned — get-task-allow entitlement not present, which is expected.
+            print("get-task-allow entitlement not found (unsigned build) — skipping check")
+            return
+        }
+        guard (value.takeRetainedValue() as? NSNumber)?.boolValue ?? false else {
             errorInfo = "lc.settings.notDevCert".loc
             errorShow = true
             return
