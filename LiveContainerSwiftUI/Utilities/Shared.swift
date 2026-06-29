@@ -117,7 +117,7 @@ class AlertHelper<T> : ObservableObject {
     private var c : UnsafeContinuation<Void, Never>? = nil
     
     func open() async -> T? {
-        await withUnsafeContinuation { c in
+        await withUnsafeContinuation { (c: UnsafeContinuation<Void, Never>) in
             self.c = c
             Task { await MainActor.run {
                 self.show = true

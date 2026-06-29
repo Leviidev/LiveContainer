@@ -127,7 +127,7 @@ extension LCUtils {
         
         var success = false
         var error : Error? = nil
-        await withUnsafeContinuation { c in
+        await withUnsafeContinuation { (c: UnsafeContinuation<Void, Never>) in
             LCUtils.authenticateUser { success1, error1 in
                 success = success1
                 error = error1

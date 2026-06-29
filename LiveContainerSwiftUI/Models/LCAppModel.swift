@@ -400,7 +400,7 @@ class LCAppModel: ObservableObject, Hashable {
             }}
         }
         
-        await withUnsafeContinuation({ c in
+        await withUnsafeContinuation({ (c: UnsafeContinuation<Void, Never>) in
             appInfo.patchExecAndSignIfNeed(completionHandler: { success, error in
                 signError = error;
                 signSuccess = success;

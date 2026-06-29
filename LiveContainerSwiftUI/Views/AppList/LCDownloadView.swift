@@ -29,7 +29,7 @@ public final class DownloadHelper : ObservableObject {
             isDownloading = true
         }
         
-        await withUnsafeContinuation { c in
+        await withUnsafeContinuation { (c: UnsafeContinuation<(), Never>) in
             continuation = c
             
             let bgConfig = URLSessionConfiguration.background(withIdentifier: "com.livecontainer.download.\(UUID().uuidString)")
