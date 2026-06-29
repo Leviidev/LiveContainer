@@ -108,6 +108,7 @@ void LCShowSwitchAppConfirmation(NSURL *url, NSString* bundleId, bool isSharedAp
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"LiveContainer" message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"lc.common.ok".loc style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
         [NSUserDefaults.lcUserDefaults setBool:NO forKey:@"LCOpenSideStore"];
+        [NSUserDefaults.lcUserDefaults setBool:NO forKey:@"LCOpenAeroStore"];
         [NSClassFromString(@"LCSharedUtils") launchToGuestAppWithURL:url];
         window.windowScene = nil;
     }];
@@ -240,7 +241,6 @@ void LCOpenWebPage(NSString* webPageUrlString, NSString* originalUrl) {
     
 
 }
-
 void LCOpenSideStoreURL(NSURL* sidestoreUrl) {
     if ([NSUserDefaults.lcUserDefaults boolForKey:@"LCSwitchAppWithoutAsking"]) {
         [NSUserDefaults.lcUserDefaults setObject:sidestoreUrl.absoluteString forKey:@"launchAppUrlScheme"];
@@ -268,6 +268,35 @@ void LCOpenSideStoreURL(NSURL* sidestoreUrl) {
     [window.rootViewController presentViewController:alert animated:YES completion:nil];
     objc_setAssociatedObject(alert, @"window", window, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
+
+}
+
+void LCOpenAeroStoreURL(NSURL* aeroStoreUrl) {
+    if ([NSUserDefaults.lcUserDefaults boolForKey:@"LCSwitchAppWithoutAsking"]) {
+        [NSUserDefaults.lcUserDefaults setObject:aeroStoreUrl.absoluteString forKey:@"launchAppUrlScheme"];
+        [NSUserDefaults.lcUserDefaults setObject:@"builtinAeroStore" forKey:@"selected"];
+        [NSClassFromString(@"LCSharedUtils") launchToGuestApp];
+    }
+    NSString *message = [@"lc.guestTweak.appSwitchTip %@" localizeWithFormat:@"AeroStore"];
+    UIWindow *window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"LiveContainer" message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"lc.common.ok".loc style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+        [NSUserDefaults.lcUserDefaults setObject:aeroStoreUrl.absoluteString forKey:@"launchAppUrlScheme"];
+        [NSUserDefaults.lcUserDefaults setObject:@"builtinAeroStore" forKey:@"selected"];
+        [NSClassFromString(@"LCSharedUtils") launchToGuestApp];
+    }];
+    [alert addAction:okAction];
+    
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"lc.common.cancel".loc style:UIAlertActionStyleCancel handler:^(UIAlertAction * action) {
+        window.windowScene = nil;
+    }];
+    [alert addAction:cancelAction];
+    window.rootViewController = [UIViewController new];
+    window.windowLevel = UIApplication.sharedApplication.windows.lastObject.windowLevel + 1;
+    window.windowScene = (id)UIApplication.sharedApplication.connectedScenes.anyObject;
+    [window makeKeyAndVisible];
+    [window.rootViewController presentViewController:alert animated:YES completion:nil];
+    objc_setAssociatedObject(alert, @"window", window, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 void authenticateUser(void (^completion)(BOOL success, NSError *error)) {
@@ -411,6 +440,11 @@ BOOL canAppOpenItself(NSURL* url) {
         return;
     }
     
+    if([url hasPrefix:@"aerostore:"]) {
+        LCOpenAeroStoreURL([NSURL URLWithString:url]);
+        return;
+    }
+    
     if ([url hasPrefix:[NSString stringWithFormat: @"%@://livecontainer-relaunch", NSUserDefaults.lcAppUrlScheme]]) {
         // Ignore
         return;
@@ -527,7 +561,7 @@ BOOL canAppOpenItself(NSURL* url) {
 }
 
 - (void)hook_openURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options completionHandler:(void (^)(_Bool))completion {
-    if(NSUserDefaults.isSideStore && ![url.scheme isEqualToString:@"livecontainer"]) {
+    if((NSUserDefaults.isSideStore || NSUserDefaults.isAeroStore) && ![url.scheme isEqualToString:@"livecontainer"]) {
         [self hook_openURL:url options:options completionHandler:completion];
         return;
     }
@@ -589,7 +623,7 @@ BOOL canAppOpenItself(NSURL* url) {
     }
 
     // Don't have UIOpenURLAction or is passing a file to app? pass it
-    if (!urlAction || urlAction.url.isFileURL || (NSUserDefaults.isSideStore && ![urlAction.url.scheme isEqualToString:@"livecontainer"])) {
+    if (!urlAction || urlAction.url.isFileURL || ((NSUserDefaults.isSideStore || NSUserDefaults.isAeroStore) && ![urlAction.url.scheme isEqualToString:@"livecontainer"])) {
         [self hook_scene:scene didReceiveActions:actions fromTransitionContext:context];
         return;
     }
@@ -602,6 +636,11 @@ BOOL canAppOpenItself(NSURL* url) {
     
     if([urlAction.url.scheme isEqualToString:@"sidestore"]) {
         LCOpenSideStoreURL(urlAction.url);
+        return;
+    }
+    
+    if([urlAction.url.scheme isEqualToString:@"aerostore"]) {
+        LCOpenAeroStoreURL(urlAction.url);
         return;
     }
 

@@ -90,7 +90,7 @@ struct LaunchAppExtension: AppIntent {
             isLiveContainerURL = schemes.contains(preferredScheme)
         }
         
-        if !isLiveContainerURL && normalizedLaunchScheme != "sidestore" {
+        if !isLiveContainerURL && normalizedLaunchScheme != "sidestore" && normalizedLaunchScheme != "aerostore" {
             throw LaunchAppExtensionError("Not a livecontainer URL!")
         }
         
@@ -104,6 +104,13 @@ struct LaunchAppExtension: AppIntent {
         if normalizedLaunchScheme == "sidestore" {
             lcSharedDefaults.set("livecontainer", forKey: "LCLaunchExtensionScheme")
             lcSharedDefaults.set("builtinSideStore", forKey: "LCLaunchExtensionBundleID")
+            lcSharedDefaults.set(Date.now, forKey: "LCLaunchExtensionLaunchDate")
+            try await openURL(url: launchURL)
+            return .result()
+        }
+        
+        if normalizedLaunchScheme == "aerostore" {
+            lcSharedDefaults.set("builtinAeroStore", forKey: "LCLaunchExtensionBundleID")
             lcSharedDefaults.set(Date.now, forKey: "LCLaunchExtensionLaunchDate")
             try await openURL(url: launchURL)
             return .result()

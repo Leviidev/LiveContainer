@@ -202,6 +202,9 @@ struct LCJITLessDiagnoseView : View {
                         } else if store == .SideStore {
                             Text("SideStore")
                                 .foregroundStyle(.gray)
+                        } else if store == .AeroStore {
+                            Text("AeroStore")
+                                .foregroundStyle(.gray)
                         } else if store == .ADP {
                             Text("lc.common.ADP".loc)
                                 .foregroundStyle(.gray)

@@ -62,7 +62,7 @@ typedef NS_ENUM(NSInteger, MultitaskSpecified){
 - (NSString*)bundleIdentifier;
 - (NSString*)version;
 - (NSMutableArray<NSString *>*)urlSchemes;
-- (instancetype)initWithBundlePath:(NSString*)bundlePath;
+- (instancetype)initWithBundlePath:(NSString*)bundlePath isBuiltIn:(BOOL)isBuiltIn;
 - (UIImage *)generateLiveContainerWrappedIconWithStyle:(GeneratedIconStyle)style;
 - (NSDictionary *)generateWebClipConfigWithContainerId:(NSString*)containerId iconStyle:(GeneratedIconStyle)style;
 - (void)save;

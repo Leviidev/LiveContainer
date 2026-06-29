@@ -7,6 +7,7 @@ typedef NS_ENUM(NSInteger, Store){
     SideStore = 0,
     AltStore = 1,
     ADP = 2,
+    AeroStore = 3,
     Unknown = -1
 };
 
@@ -47,6 +48,7 @@ int dyld_get_program_sdk_version(void);
 
 @interface NSUserDefaults(LiveContainer)
 + (bool)sideStoreExist;
++ (bool)aeroStoreExist;
 @end
 
 @interface LCP12CertHelper : NSObject

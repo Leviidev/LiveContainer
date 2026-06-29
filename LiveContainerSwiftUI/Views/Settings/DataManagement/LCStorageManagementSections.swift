@@ -337,7 +337,7 @@ private struct LCAppStorageDetailView: View {
                         Spacer(minLength: 12)
 
                         Text(formatStorageSize(bundleSize))
-                            .strikethrough(appItem.appModel.appInfo is BuiltInSideStoreAppInfo)
+                            .strikethrough(appItem.appModel.appInfo is BuiltInSideStoreAppInfo || appItem.appModel.appInfo is BuiltInAeroStoreAppInfo)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }

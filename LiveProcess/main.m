@@ -94,6 +94,24 @@ int LiveProcessMain(int argc, char *argv[]) {
         LiveProcessSideStoreHandler.shared.server = proxy;
         LiveProcessSideStoreHandler.shared.connection = connection;
         
+    } else if ([appInfo[@"selected"] isEqualToString:@"builtinAeroStore"]) {
+        if(access && bookmarkedUrls.count > 0) {
+            [lcUserDefaults setObject:bookmarkedUrls.firstObject.path forKey:@"specifiedAeroStoreContainerPath"];
+        }
+        NSXPCListenerEndpoint* endpoint = appInfo[@"endpoint"];
+
+        NSXPCConnection* connection = [[NSXPCConnection alloc] initWithListenerEndpoint:endpoint];
+        connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(RefreshServer)];
+        connection.interruptionHandler = ^{
+            NSLog(@"interrupted!!!");
+        };
+        
+        [connection activate];
+        
+        NSObject<RefreshServer>* proxy = [connection remoteObjectProxy];
+        LiveProcessSideStoreHandler.shared.server = proxy;
+        LiveProcessSideStoreHandler.shared.connection = connection;
+        
     }
 
     

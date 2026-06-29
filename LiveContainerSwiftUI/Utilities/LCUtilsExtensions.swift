@@ -408,6 +408,10 @@ extension LCUtils {
             onServerMessage?("JIT acquisition will continue in SideStore.")
             let launchURL = URL(string: "sidestore://enable-jit?bundle-id=\(Bundle.main.bundleIdentifier!)")!
             await UIApplication.shared.open(launchURL)
+        } else if jitEnabler == .AeroStore {
+            onServerMessage?("JIT acquisition will continue in AeroStore.")
+            let launchURL = URL(string: "aerostore://enable-jit?bundle-id=\(Bundle.main.bundleIdentifier!)")!
+            await UIApplication.shared.open(launchURL)
         }
         return false
     }
@@ -512,6 +516,14 @@ extension LCUtils {
         
         Task {
             try await sideStoreApp.runApp(bundleIdOverride: "builtinSideStore", urlStr: urlStr)
+        }
+    }
+    
+    static func openAeroStore(delegate: LCAppModelDelegate? = nil) {
+        let aeroStoreApp = LCAppModel(appInfo: BuiltInAeroStoreAppInfo(), delegate: delegate)
+        
+        Task {
+            try await aeroStoreApp.runApp(bundleIdOverride: "builtinAeroStore")
         }
     }
 }

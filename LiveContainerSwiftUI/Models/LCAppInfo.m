@@ -11,22 +11,40 @@ uint32_t dyld_get_sdk_version(const struct mach_header* mh);
 
 @implementation LCAppInfo
 
-- (instancetype)initWithBundlePath:(NSString*)bundlePath {
+- (instancetype)initWithBundlePath:(NSString*)bundlePath isBuiltIn:(BOOL)isBuiltIn {
     self = [super init];
     self.isShared = false;
 	if(self) {
         _bundlePath = bundlePath;
-        _infoPlist = [NSMutableDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/Info.plist", bundlePath]];
-        _info = [NSMutableDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/LCAppInfo.plist", bundlePath]];
-        if(!_info) {
-            _info = [[NSMutableDictionary alloc] init];
-        }
-        if(!_infoPlist) {
+        _isBuiltIn = isBuiltIn;
+        if (!isBuiltIn) {
+            _infoPlist = [NSMutableDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/Info.plist", bundlePath]];
+            _info = [NSMutableDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/LCAppInfo.plist", bundlePath]];
+        } else {
             _infoPlist = [[NSMutableDictionary alloc] init];
+            _info = [[NSMutableDictionary alloc] init]; // Initialize empty for built-in
+
+            // Hardcode values for built-in apps based on bundlePath suffix
+            if ([bundlePath hasSuffix:@"AeroStoreApp.framework"]) {
+                _infoPlist[@"CFBundleDisplayName"] = @"AeroStore";
+                _infoPlist[@"CFBundleName"] = @"AeroStore";
+                _infoPlist[@"CFBundleExecutable"] = @"AeroStoreApp";
+                _infoPlist[@"CFBundleIdentifier"] = @"com.aero.aerostore";
+                _infoPlist[@"CFBundleShortVersionString"] = @"1.0";
+                _infoPlist[@"CFBundleVersion"] = @"1";
+            } else if ([bundlePath hasSuffix:@"SideStoreApp.framework"]) {
+                _infoPlist[@"CFBundleDisplayName"] = @"SideStore";
+                _infoPlist[@"CFBundleName"] = @"SideStore";
+                _infoPlist[@"CFBundleExecutable"] = @"SideStoreApp";
+                _infoPlist[@"CFBundleIdentifier"] = @"com.SideStore.SideStore";
+                _infoPlist[@"CFBundleShortVersionString"] = @"1.0";
+                _infoPlist[@"CFBundleVersion"] = @"1";
+            }
         }
+
         
-        // migrate old appInfo
-        if(_infoPlist[@"LCPatchRevision"] && [_info count] == 0) {
+        // migrate old appInfo (only if not built-in and _info was empty)
+        if (!isBuiltIn && _infoPlist[@"LCPatchRevision"] && [_info count] == 0) {
             NSArray* lcAppInfoKeys = @[
                 @"LCPatchRevision",
                 @"LCOrignalBundleIdentifier",
@@ -53,17 +71,21 @@ uint32_t dyld_get_sdk_version(const struct mach_header* mh);
                 _info[key] = _infoPlist[key];
                 [_infoPlist removeObjectForKey:key];
             }
-            [_infoPlist writeBinToFile:[NSString stringWithFormat:@"%@/Info.plist", bundlePath] atomically:YES];
+            // Don't overwrite Info.plist if built-in or if _info was already loaded
+            if (!isBuiltIn && [_infoPlist count] > 0) { // Check if _infoPlist actually has content to write
+                [_infoPlist writeBinToFile:[NSString stringWithFormat:@"%@/Info.plist", bundlePath] atomically:YES];
+            }
             [self save];
         }
         
-        // fix bundle id and execName if crash when signing
-        if (_infoPlist[@"LCBundleIdentifier"]) {
+        // fix bundle id and execName if crash when signing (only if not built-in)
+        if (!isBuiltIn && _infoPlist[@"LCBundleIdentifier"]) {
             _infoPlist[@"CFBundleExecutable"] = _infoPlist[@"LCBundleExecutable"];
             _infoPlist[@"CFBundleIdentifier"] = _infoPlist[@"LCBundleIdentifier"];
             [_infoPlist removeObjectForKey:@"LCBundleExecutable"];
             [_infoPlist removeObjectForKey:@"LCBundleIdentifier"];
             [_infoPlist writeBinToFile:[NSString stringWithFormat:@"%@/Info.plist", bundlePath] atomically:YES];
+            [self save];
         }
 
         _autoSaveDisabled = false;

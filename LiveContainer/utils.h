@@ -44,6 +44,8 @@ static inline void swizzle(Class class, SEL originalAction, SEL swizzledAction) 
 + (NSString*)lcGuestAppId;
 + (bool)isSideStore;
 + (bool)sideStoreExist;
++ (bool)isAeroStore;
++ (bool)aeroStoreExist;
 + (NSString*)lcLaunchURL;
 @end
 

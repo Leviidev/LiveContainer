@@ -1,14 +1,7 @@
-//
-//  BuiltInSideStoreAppInfo.swift
-//  LiveContainer
-//
-//  Created by s s on 2026/4/12.
-//
-
-class BuiltInSideStoreAppInfo : LCAppInfo {
+class BuiltInAeroStoreAppInfo : LCAppInfo {
 
     override init() {
-        super.init(bundlePath: Bundle.main.bundleURL.appendingPathComponent("Frameworks/SideStoreApp.framework").path, isBuiltIn: true)
+        super.init(bundlePath: Bundle.main.bundleURL.appendingPathComponent("Frameworks/AeroStoreApp.framework").path, isBuiltIn: true)
     }
     
     override func iconIsDarkIcon(_ isDarkIcon: Bool) -> UIImage! {
@@ -28,9 +21,9 @@ class BuiltInSideStoreAppInfo : LCAppInfo {
         
         let cachedIconURL : URL;
         if(isDarkIcon) {
-            cachedIconURL = iconCacheUrl.appendingPathComponent("LCAppIconDark.png");
+            cachedIconURL = iconCacheUrl.appendingPathComponent("LCAeroAppIconDark.png");
         } else {
-            cachedIconURL = iconCacheUrl.appendingPathComponent("LCAppIconLight.png");
+            cachedIconURL = iconCacheUrl.appendingPathComponent("LCAeroAppIconLight.png");
         }
         
         var ans: UIImage? = nil
@@ -68,7 +61,7 @@ class BuiltInSideStoreAppInfo : LCAppInfo {
     
     private func ensureAndGetIconCacheFolder() -> URL? {
         guard let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
-        let directory = caches.appendingPathComponent("BuiltInSideStoreIconCache", isDirectory: true)
+        let directory = caches.appendingPathComponent("BuiltInAeroStoreIconCache", isDirectory: true)
         if !FileManager.default.fileExists(atPath: directory.path) {
             do {
                 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

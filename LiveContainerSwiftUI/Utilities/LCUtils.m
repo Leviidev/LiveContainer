@@ -113,6 +113,8 @@
 + (NSURL *)storeBundlePath {
     if ([self store] == SideStore) {
         return [LCSharedUtils.appGroupPath URLByAppendingPathComponent:@"Apps/com.SideStore.SideStore/App.app"];
+    } else if ([self store] == AeroStore) {
+        return [LCSharedUtils.appGroupPath URLByAppendingPathComponent:@"Apps/com.aero.aerostore/App.app"];
     } else {
         return [LCSharedUtils.appGroupPath URLByAppendingPathComponent:@"Apps/com.rileytestut.AltStore/App.app"];
     }
@@ -121,6 +123,8 @@
 + (NSString *)storeInstallURLScheme {
     if ([self store] == SideStore) {
         return @"sidestore://install?url=%@";
+    } else if ([self store] == AeroStore) {
+        return @"aerostore://install?url=%@";
     } else {
         return @"altstore://install?url=%@";
     }
@@ -193,6 +197,8 @@
             ans = SideStore;
         } else if ([UTType typeWithIdentifier:[NSString stringWithFormat:@"io.altstore.Installed.%@", NSBundle.mainBundle.bundleIdentifier]]) {
             ans = AltStore;
+        } else if ([UTType typeWithIdentifier:[NSString stringWithFormat:@"io.aerostore.Installed.%@", NSBundle.mainBundle.bundleIdentifier]]) {
+            ans = AeroStore;
         } else {
             ans = Unknown;
         }
@@ -205,6 +211,8 @@
             ans = AltStore;
         } else if ([[LCSharedUtils appGroupID] containsString:@"SideStore"] && ![[LCSharedUtils appGroupID] isEqualToString:@"group.com.SideStore.SideStore"]) {
             ans = SideStore;
+        } else if ([[LCSharedUtils appGroupID] containsString:@"AeroStore"] && ![[LCSharedUtils appGroupID] isEqualToString:@"group.com.SideStore.AeroStore"]) {
+            ans = AeroStore;
         } else if (![[LCSharedUtils appGroupID] containsString:@"Unknown"] ) {
             ans = ADP;
         } else {
@@ -338,6 +346,7 @@
     NSArray* appGroupsToFind = @[
         @"group.com.SideStore.SideStore",
         @"group.com.rileytestut.AltStore",
+        @"group.com.SideStore.AeroStore",
     ];
     
     // remove the team id prefix in app group id added by SideStore/AltStore

@@ -18,5 +18,7 @@ void swizzleClassMethod(Class class, SEL originalAction, SEL swizzledAction);
 + (NSString*)lcGuestAppId;
 + (bool)isSideStore;
 + (bool)sideStoreExist;
++ (bool)isAeroStore;
++ (bool)aeroStoreExist;
 + (NSString*)lcLaunchURL;
 @end

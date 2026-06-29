@@ -254,7 +254,22 @@ struct LCAppListView : View, LCAppBannerDelegate, LCAppModelDelegate {
                                     }
                                 }())
                                 .frame(width: UIFont.preferredFont(forTextStyle: .body).lineHeight, height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
-
+                        }
+                    } else if(UserDefaults.aeroStoreExist()) {
+                        Button {
+                            LCUtils.openAeroStore(delegate: self)
+                        } label: {
+                            Image(systemName: "airplane")
+                                .resizable()
+                                .renderingMode(.template)
+                                .foregroundColor({
+                                    if SharedModel.isLiquidGlassEnabled {
+                                        return Color.primary
+                                    } else {
+                                        return Color.accentColor
+                                    }
+                                }())
+                                .frame(width: UIFont.preferredFont(forTextStyle: .body).lineHeight, height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
                         }
                     } else {
                         Button("Help", systemImage: "questionmark") {
@@ -1170,6 +1185,11 @@ struct LCAppListView : View, LCAppBannerDelegate, LCAppModelDelegate {
         if url.scheme == "sidestore" && UserDefaults.sideStoreExist() {
             UserDefaults.standard.setValue(url.absoluteString, forKey: "launchAppUrlScheme")
             LCUtils.openSideStore(delegate: self)
+            return
+        }
+        if url.scheme == "aerostore" && UserDefaults.aeroStoreExist() {
+            UserDefaults.standard.setValue(url.absoluteString, forKey: "launchAppUrlScheme")
+            LCUtils.openAeroStore(delegate: self)
             return
         }
         
