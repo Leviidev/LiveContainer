@@ -302,6 +302,10 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
         isSharedBundle = true;
     }
     
+    if(!guestAppInfo && (isSideStore || isAeroStore)) {
+        guestAppInfo = @{@"dontInjectTweakLoader": @YES};
+    }
+    
     if(!guestAppInfo) {
         return @"App bundle not found! Unable to read LCAppInfo.plist.";
     }
