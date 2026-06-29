@@ -19,6 +19,7 @@ typedef NS_ENUM(NSInteger, MultitaskSpecified){
     NSMutableDictionary* _info;
     NSMutableDictionary* _infoPlist;
     NSString* _bundlePath;
+    BOOL _isBuiltIn;
 }
 @property NSString* relativeBundlePath;
 @property bool isShared;
