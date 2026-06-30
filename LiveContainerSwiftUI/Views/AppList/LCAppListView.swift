@@ -259,7 +259,7 @@ struct LCAppListView : View, LCAppBannerDelegate, LCAppModelDelegate {
                         Button {
                             LCUtils.openAeroStore(delegate: self)
                         } label: {
-                            Image(systemName: "airplane")
+                            Image("AeroStoreBadge")
                                 .resizable()
                                 .renderingMode(.template)
                                 .foregroundColor({
