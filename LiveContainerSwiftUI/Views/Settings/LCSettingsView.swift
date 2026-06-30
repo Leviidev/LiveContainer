@@ -208,6 +208,21 @@ struct LCSettingsView: View {
                             Text("lc.settings.darkModeIcon".loc)
                         }
                     }
+                    if store == .AeroStore || LCBootstrap.isAeroStore() || LCBootstrap.aeroStoreExist() {
+                        Toggle(isOn: Binding<Bool>(
+                            get: { UIApplication.shared.alternateIconName == "AppIconAeroStore" },
+                            set: { newValue in
+                                let targetIcon: String? = newValue ? "AppIconAeroStore" : nil
+                                UIApplication.shared.setAlternateIconName(targetIcon) { error in
+                                    if let error = error {
+                                        print("Failed to change app icon: \(error)")
+                                    }
+                                }
+                            }
+                        )) {
+                            Text("Use AeroStore App Icon")
+                        }
+                    }
                     
                 } header: {
                     Text("lc.settings.interface".loc)
