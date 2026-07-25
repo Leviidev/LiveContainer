@@ -358,9 +358,6 @@ uint32_t dyld_get_sdk_version(const struct mach_header* mh);
                     info[@"LCTweakLoaderCantInject"] = @YES;
                     info[@"dontInjectTweakLoader"] = @YES;
                 }
-                if(patchResult & PATCH_EXEC_RESULT_SEG_COUNT_MISMATCH) {
-                    info[@"segCountMismatch"] = @YES;
-                }
             }
             isEncrypted |= LCIsMachOEncrypted(header);
         });
