@@ -738,6 +738,10 @@ struct LCAppListView : View, LCAppBannerDelegate, LCAppModelDelegate {
                 errorInfo = "\("lc.appList.signSuccessWithError".loc)\n\n\(signError)"
             } else {
                 errorInfo = signError.loc
+                // DELETE the broken app folder since it failed to install correctly
+                if let path = finalNewApp.bundlePath() {
+                    try? FileManager.default.removeItem(atPath: path)
+                }
             }
             errorShow = true
         }

@@ -31,6 +31,10 @@ struct LiveContainerSwiftUIApp : SwiftUI.App {
                     continue
                 }
                 let newApp = LCAppInfo(bundlePath: "\(LCPath.bundlePath.path)/\(appDir)", isBuiltIn: false)!
+                if newApp.bundleIdentifier() == nil {
+                    try? fm.removeItem(atPath: "\(LCPath.bundlePath.path)/\(appDir)")
+                    continue
+                }
                 newApp.relativeBundlePath = appDir
                 newApp.isShared = false
                 if newApp.isHidden {
@@ -48,6 +52,10 @@ struct LiveContainerSwiftUIApp : SwiftUI.App {
                         continue
                     }
                     let newApp = LCAppInfo(bundlePath: "\(LCPath.lcGroupBundlePath.path)/\(appDir)", isBuiltIn: false)!
+                    if newApp.bundleIdentifier() == nil {
+                        try? fm.removeItem(atPath: "\(LCPath.lcGroupBundlePath.path)/\(appDir)")
+                        continue
+                    }
                     newApp.relativeBundlePath = appDir
                     newApp.isShared = true
                     if newApp.isHidden {
