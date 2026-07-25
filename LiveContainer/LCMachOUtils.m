@@ -279,11 +279,6 @@ void LCPatchAppBundleFixupARM64eSlice(NSURL *bundleURL) {
     NSDirectoryEnumerator *enumerator = [fm enumeratorAtURL:bundleURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles errorHandler:nil];
     for (NSURL *fileURL in enumerator) {
         if ([fileURL.pathExtension isEqualToString:@"dylib"]) {
-            // copy-delete-move to avoid EXC_BAD_ACCESS (SIGKILL - CODESIGNING) on iOS 27
-            NSString *backupPath = [fileURL.path stringByAppendingString:@"_LiveContainerPatchBackUp"];
-            [fm copyItemAtPath:fileURL.path toPath:backupPath error:nil];
-            [fm removeItemAtPath:fileURL.path error:nil];
-            [fm moveItemAtPath:backupPath toPath:fileURL.path error:nil];
             LCPatchMachOFixupARM64eSlice(fileURL.path.fileSystemRepresentation);
         } else if ([fileURL.pathExtension isEqualToString:@"framework"]) {
             NSDictionary *info = [NSDictionary dictionaryWithContentsOfURL:[fileURL URLByAppendingPathComponent:@"Info.plist"]];
@@ -292,13 +287,6 @@ void LCPatchAppBundleFixupARM64eSlice(NSURL *bundleURL) {
                 executableName = fileURL.lastPathComponent.stringByDeletingPathExtension;
             }
             NSURL *executableURL = [fileURL URLByAppendingPathComponent:executableName];
-            
-            // copy-delete-move to avoid EXC_BAD_ACCESS (SIGKILL - CODESIGNING) on iOS 27
-            NSString *backupPath = [executableURL.path stringByAppendingString:@"_LiveContainerPatchBackUp"];
-            [fm copyItemAtPath:executableURL.path toPath:backupPath error:nil];
-            [fm removeItemAtPath:executableURL.path error:nil];
-            [fm moveItemAtPath:backupPath toPath:executableURL.path error:nil];
-            
             LCPatchMachOFixupARM64eSlice(executableURL.path.fileSystemRepresentation);
         }
     }
