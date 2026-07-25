@@ -768,8 +768,8 @@ struct LCAppListView : View, LCAppBannerDelegate, LCAppModelDelegate {
             finalNewApp.autoSaveDisabled = false
             finalNewApp.save()
         } else {
-            // enable SDK version spoof by defalut
-            finalNewApp.spoofSDKVersion = true
+            // disable SDK version spoof by default as required by iOS 27 patch
+            finalNewApp.spoofSDKVersion = false
         }
         finalNewApp.installationDate = Date.now
         
